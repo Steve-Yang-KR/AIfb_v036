@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="SSOT Global AI Football Platform">
+  <title>{% block title %}SSOT Global AI Football Platform{% endblock %}</title>
+  <style>
+    :root{--red:#c91522;--navy:#111934;--blue:#3348bd;--ink:#172033;--muted:#667085;--line:#dfe4eb;--paper:#f5f7fa}*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:var(--paper)}a{text-decoration:none;color:inherit}.wrap{width:min(1120px,calc(100% - 32px));margin:auto}.site-head{height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100vw - 1120px)/2));position:sticky;top:0;z-index:20}.brand{font-weight:950}.brand small{display:block;font-size:10px;color:var(--muted);margin-top:2px}.head-actions{display:flex;align-items:center;gap:8px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;border:0;border-radius:9px;padding:10px 14px;background:var(--red);color:#fff;font-weight:900;font-size:12px;cursor:pointer}.btn.alt{background:#fff;color:var(--ink);border:1px solid #ccd3dd}.btn.blue{background:var(--blue)}main{min-height:calc(100vh - 130px)}footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:12px;background:#fff}input,select{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(51,72,189,.28);outline-offset:3px}@media(max-width:600px){.site-head{height:auto;min-height:60px;padding:9px 12px}.brand small{display:none}.head-actions{gap:5px}.btn{min-height:36px;padding:8px 10px;font-size:11px}}
+    {% block styles %}{% endblock %}
+  </style>
+</head>
+<body>
+  <header class="site-head"><a class="brand" href="/">SSOT · GLOBAL AI FOOTBALL<small>Player + Coach Development Platform</small></a><nav class="head-actions">{% if current_user %}<a class="btn alt" href="/dashboard">{{ current_user.name }}</a><form action="/logout" method="post"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="btn" type="submit">Sign out</button></form>{% else %}<a class="btn alt" href="/login">Sign in</a><a class="btn" href="/signup">Sign up</a>{% endif %}</nav></header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer><div class="wrap">© 2026 Superstars of Tomorrow · Global AI Football Platform</div></footer>
+</body>
+</html>

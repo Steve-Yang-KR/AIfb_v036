@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: aifb-v036
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: ENVIRONMENT
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aifb-v036-db
+          property: connectionString
+
+databases:
+  - name: aifb-v036-db
+    plan: free
+    databaseName: aifb_v036
+    user: aifb_v036
