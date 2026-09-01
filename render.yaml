@@ -3,8 +3,9 @@ services:
     name: aifb-v036
     runtime: python
     plan: free
+    region: singapore
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    startCommand: python -m alembic upgrade head && python -m uvicorn app:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
@@ -17,9 +18,16 @@ services:
         fromDatabase:
           name: aifb-v036-db
           property: connectionString
+      - key: DB_POOL_SIZE
+        value: 5
+      - key: DB_MAX_OVERFLOW
+        value: 5
+      - key: DB_CONNECT_TIMEOUT
+        value: 10
 
 databases:
   - name: aifb-v036-db
     plan: free
+    region: singapore
     databaseName: aifb_v036
     user: aifb_v036

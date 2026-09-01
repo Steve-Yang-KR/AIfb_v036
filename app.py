@@ -8,7 +8,8 @@ from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pwdlib import PasswordHash
-from sqlalchemy import Boolean, DateTime, String, create_engine, select
+from sqlalchemy import Boolean, DateTime, String, create_engine, select, text
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -39,28 +40,39 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
+DATABASE_URL = database_url()
+if os.getenv("ENVIRONMENT") == "production" and DATABASE_URL.startswith("sqlite"):
+    raise RuntimeError("DATABASE_URL must point to PostgreSQL in production")
+
 engine_options = {"pool_pre_ping": True}
-if database_url().startswith("sqlite"):
+if DATABASE_URL.startswith("sqlite"):
     engine_options["connect_args"] = {"check_same_thread": False}
-engine = create_engine(database_url(), **engine_options)
+else:
+    engine_options.update(
+        pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
+        max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
+        pool_timeout=int(os.getenv("DB_POOL_TIMEOUT", "30")),
+        pool_recycle=int(os.getenv("DB_POOL_RECYCLE", "300")),
+        connect_args={"connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "10"))},
+    )
+engine = create_engine(DATABASE_URL, **engine_options)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 passwords = PasswordHash.recommended()
 templates = Jinja2Templates(directory="templates")
 
+SESSION_SECRET = os.getenv("SESSION_SECRET")
+if os.getenv("ENVIRONMENT") == "production" and not SESSION_SECRET:
+    raise RuntimeError("SESSION_SECRET is required in production")
+
 app = FastAPI(title="SSOT Global AI Football Platform", version="0.36.0")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SESSION_SECRET", secrets.token_urlsafe(32)),
+    secret_key=SESSION_SECRET or secrets.token_urlsafe(32),
     session_cookie="ssot_session",
     max_age=60 * 60 * 24 * 7,
     same_site="lax",
     https_only=os.getenv("ENVIRONMENT", "development") == "production",
 )
-
-
-@app.on_event("startup")
-def startup() -> None:
-    Base.metadata.create_all(bind=engine)
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -93,7 +105,11 @@ def current_user(request: Request, db: Session) -> User | None:
     user_id = request.session.get("user_id")
     if not user_id:
         return None
-    return db.get(User, user_id)
+    user = db.get(User, user_id)
+    if not user or not user.is_active:
+        request.session.clear()
+        return None
+    return user
 
 
 def page_context(request: Request, db: Session, **extra: object) -> dict[str, object]:
@@ -145,7 +161,16 @@ def signup(
 
     user = User(name=name, email=email, role=role, password_hash=passwords.hash(password))
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return templates.TemplateResponse(
+            request,
+            "auth.html",
+            page_context(request, db, mode="signup", error="An account with this email already exists."),
+            status_code=409,
+        )
     request.session.clear()
     request.session["user_id"] = user.id
     csrf_token(request)
@@ -199,5 +224,12 @@ def dashboard(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+def health(db: Session = Depends(get_db)) -> dict[str, str]:
+    try:
+        db.execute(text("SELECT 1"))
+    except SQLAlchemyError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        ) from exc
+    return {"status": "ok", "database": "connected"}
