@@ -473,6 +473,39 @@ html[dir="rtl"] .hero-actions,html[dir="rtl"] .micro{direction:rtl}
 @media(max-width:560px){.prod360-services{grid-template-columns:1fr}}
 </style>
 
+<style id="ux-improvements">
+/* UI/UX refinement layer — preserves the v0.36 structure and interactions. */
+:root{--ux-ink:#111827;--ux-muted:#667085;--ux-line:#e3e7ee;--ux-soft:#f7f8fb;--ux-red:#c91522;--ux-shadow:0 10px 30px rgba(15,25,45,.07)}
+body{color:var(--ux-ink);font-size:15px;line-height:1.55;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+.shell{width:min(1240px,calc(100% - 40px))}
+header{height:64px;border-bottom:1px solid var(--ux-line);box-shadow:0 3px 18px rgba(15,25,45,.05);background:rgba(255,255,255,.96);backdrop-filter:blur(14px)}
+header nav{gap:24px}header nav a{font-size:13px;transition:color .18s ease}header nav a:hover{color:var(--ux-red)}
+.header-actions{gap:8px}.btn{min-height:40px;padding:10px 15px;border-radius:9px;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.btn:hover{transform:translateY(-1px)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(45,127,249,.35)!important;outline-offset:3px!important}
+.top-lang24{border-bottom:1px solid var(--ux-line)}.top-lang24-inner{padding-top:8px;padding-bottom:8px}.top-lang24-buttons{gap:5px}.top-lang24-buttons button{min-height:31px;padding:6px 9px;border-radius:8px}
+main>section{padding-top:52px!important;padding-bottom:52px!important;scroll-margin-top:76px}
+main>.hero{padding-top:42px!important;padding-bottom:42px!important;min-height:auto;gap:36px}
+.hero h1{font-size:clamp(44px,5vw,64px);line-height:1.02}.hero .lede{font-size:16px;line-height:1.6;margin-top:16px}.hero-actions{margin-top:20px}.hero .micro{margin-top:18px;gap:8px 14px}.hero-visual{min-height:350px}
+.section-head{margin-bottom:20px;gap:24px}.section-head h2{font-size:clamp(28px,3vw,40px);line-height:1.12}.section-head>p{font-size:13px;line-height:1.6}.eyebrow{margin-bottom:6px}
+.role-grid,.os-grid,.grid25,.grid26,.prod360-grid{gap:12px}
+.role,.os-card,.twin-card,.pass25-card,.card26,.c291,.prod360-card,.b25card,.n25card{border-color:var(--ux-line);box-shadow:var(--ux-shadow);border-radius:14px}
+.role{padding:18px}.role h3{margin:9px 0 5px}.role p{font-size:12px;line-height:1.55}.role-icon{margin-bottom:8px}
+.coach-lifecycle,.passport25,.builder26,.bench25,.ops291{background:var(--ux-soft)}
+.flywheel,.coach-kpis,.lc-stats,.metrics25,.prod360-services{gap:8px}.fly,.coach-kpi,.lc-stat,.m25{padding:11px}
+.os-card{padding:14px}.os-main{padding:18px}.os-page-head{margin-bottom:14px}.os-page-head h2{font-size:27px}
+table{line-height:1.4}.os-table th,.os-table td{padding-top:9px;padding-bottom:9px}
+input,select,textarea{min-height:38px;font-size:13px!important}
+.modal-card,.review-box{border-radius:16px;box-shadow:0 28px 80px rgba(7,13,30,.25)}
+footer{padding-top:24px!important;padding-bottom:24px!important}
+.ux-progress{position:fixed;inset:0 0 auto 0;height:3px;z-index:250;background:transparent;pointer-events:none}.ux-progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,#c91522,#ff5964);transition:width .08s linear}
+.ux-rail{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:18;display:grid;gap:5px;padding:7px;background:rgba(255,255,255,.94);border:1px solid var(--ux-line);border-radius:12px;box-shadow:var(--ux-shadow);backdrop-filter:blur(10px)}
+.ux-rail a{width:31px;height:31px;border-radius:8px;display:grid;place-items:center;text-decoration:none;color:#687181;font-size:10px;font-weight:900}.ux-rail a:hover,.ux-rail a.active{background:#111934;color:#fff}.ux-rail a span{position:absolute;right:39px;white-space:nowrap;background:#111934;color:#fff;padding:6px 8px;border-radius:6px;font-size:10px;opacity:0;pointer-events:none;transform:translateX(4px);transition:.15s}.ux-rail a:hover span{opacity:1;transform:none}
+.ux-top{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border:0;border-radius:12px;background:#111934;color:#fff;box-shadow:0 10px 25px rgba(15,25,45,.22);z-index:40;opacity:0;transform:translateY(12px);pointer-events:none;transition:.2s}.ux-top.show{opacity:1;transform:none;pointer-events:auto}.ux-top:hover{background:var(--ux-red)}
+@media(max-width:1100px){.ux-rail{display:none}.shell{width:min(100% - 28px,1240px)}}
+@media(max-width:980px){main>section{padding-top:42px!important;padding-bottom:42px!important}.hero{gap:24px}.hero-visual{min-height:300px}.os-main{padding:14px}}
+@media(max-width:640px){body{font-size:14px}.shell{width:min(100% - 22px,1240px)}header{height:56px}main>section{padding-top:34px!important;padding-bottom:34px!important}.hero h1{font-size:40px}.hero .lede{font-size:15px}.section-head h2{font-size:28px}.section-head{margin-bottom:16px}.role{padding:15px}.ux-top{right:12px;bottom:12px}.top-lang24-buttons{display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;scrollbar-width:thin}.top-lang24-buttons button{flex:0 0 auto}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.btn:hover{transform:none}}
+</style>
 </head>
 <body>
 <header>
@@ -2343,4 +2376,34 @@ renderWs25('coach');
 })();
 </script>
 
+<div class="ux-progress" aria-hidden="true"><span id="uxProgress"></span></div>
+<nav class="ux-rail" aria-label="Quick page navigation">
+  <a href="#top" title="Top">01<span>Overview</span></a>
+  <a href="#roles" title="Experiences">02<span>Experiences</span></a>
+  <a href="#foundation" title="Foundation">03<span>Foundation</span></a>
+  <a href="#workspaces" title="Workspaces">04<span>Workspaces</span></a>
+  <a href="#production-foundation" title="Production">05<span>Production</span></a>
+</nav>
+<button class="ux-top" id="uxTop" type="button" aria-label="Back to top">↑</button>
+<script id="ux-improvements-script">
+(function(){
+  const progress=document.getElementById('uxProgress');
+  const topButton=document.getElementById('uxTop');
+  const railLinks=[...document.querySelectorAll('.ux-rail a')];
+  const targets=railLinks.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function updateUX(){
+    const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+    const ratio=Math.min(1,Math.max(0,scrollY/max));
+    progress.style.width=(ratio*100)+'%';
+    topButton.classList.toggle('show',scrollY>650);
+    let current=targets[0];
+    for(const target of targets){if(target.getBoundingClientRect().top<=innerHeight*.35)current=target;}
+    railLinks.forEach(a=>a.classList.toggle('active',current&&a.getAttribute('href')==='#'+current.id));
+  }
+  addEventListener('scroll',updateUX,{passive:true});
+  addEventListener('resize',updateUX,{passive:true});
+  topButton.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+  updateUX();
+})();
+</script>
 </body></html>
