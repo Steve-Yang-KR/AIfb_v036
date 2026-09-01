@@ -26,6 +26,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font:inherit}.
 .bars{display:grid;gap:8px}.barrow{display:grid;grid-template-columns:115px 1fr 36px;gap:8px;align-items:center;font-size:9px}.track{height:7px;background:#edf0f4;border-radius:99px;overflow:hidden}.track i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:99px}
 .passport{background:linear-gradient(145deg,#273aa4,#5967da);color:#fff;min-height:260px;position:relative;overflow:hidden}.passport:after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.11);right:-55px;top:-50px}.passport h2{margin:4px 0;font-size:23px}.passport p{font-size:9px;color:#e8ebff}.pass-id{position:absolute;left:16px;bottom:16px;font-size:8px;letter-spacing:.11em}
 .app-shell{max-width:1020px;margin:auto}.app-intro{background:linear-gradient(135deg,#111934,#26356d);color:#fff;border-radius:18px;padding:22px;margin-bottom:13px}.app-intro h2{font-size:27px;margin:5px 0}.app-intro p{font-size:11px;line-height:1.55;color:#d2d9e7}.app-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0}.app-step{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;text-align:center;font-size:8px;font-weight:900}.app-step.active{background:#eef1ff;border-color:#9facff;color:#273aa4}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field label{display:block;font-size:8px;font-weight:900;color:#66707b;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid #dce1e8;border-radius:8px;padding:9px;background:#fff;font-size:9px}.field textarea{min-height:82px;resize:vertical}.full{grid-column:1/-1}.choicegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.choice{border:1px solid #dfe4eb;border-radius:9px;padding:9px;font-size:8.5px;background:#fafbfc;cursor:pointer}.choice.on{border-color:var(--blue);background:#eef1ff}.scorebox{background:#111934;color:#fff;border-radius:13px;padding:14px}.scorebox strong{font-size:31px}.scorebox small{display:block;color:#b9c4d8;font-size:8px}.weightline{display:grid;grid-template-columns:160px 1fr 36px;gap:8px;align-items:center;font-size:8.5px;margin:8px 0}.weightline .track{background:#26314f}.weightline .track i{background:#7f91ff}.app-note{border-left:3px solid var(--blue);background:#f2f4ff;padding:10px;font-size:9px;line-height:1.5;color:#56606b;margin-top:11px}
+.save-status{border-radius:10px;padding:12px 14px;margin:0 0 13px;font-size:12px;font-weight:800;background:#eaf7ef;color:#17663c;border:1px solid #bfe5ce}.choice input{width:auto;margin:0 6px 0 0;vertical-align:middle}.credential-note{font-size:11px;color:#667085;margin-top:6px}
 .triad{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center}.node{border-radius:12px;padding:13px;color:#fff}.node.player{background:#d91f2e}.node.ai{background:#111934}.node.coach{background:var(--blue)}.node b{font-size:11px}.node span{display:block;font-size:8px;opacity:.85;margin-top:3px}.arrow{font-weight:950;color:#8a94a3;font-size:18px}
 .market-list{display:grid;gap:8px}.market-item{border:1px solid var(--line);border-radius:10px;padding:11px;background:#fafbfc}.market-item b{font-size:10px}.market-item p{font-size:8px;color:#727b86;margin:4px 0}.trustgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.trustgrid div{border:1px solid var(--line);border-radius:10px;padding:11px;background:#fff}.trustgrid b{font-size:9px}.trustgrid span{display:block;font-size:8px;color:#717b86;margin-top:3px;line-height:1.4}
 @media(max-width:980px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.profile,.footnote{display:none}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap}.nav .sep{display:none}.main{padding:16px}.s3,.s4,.s5,.s6,.s7,.s8{grid-column:span 12}.formgrid{grid-template-columns:1fr}.app-steps{grid-template-columns:repeat(2,1fr)}.triad{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}.trustgrid{grid-template-columns:1fr 1fr}}
@@ -98,28 +99,33 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="pagehead"><div><p class="eyebrow">10-MINUTE FOUNDING COACH APPLICATION</p><h1>Apply to become an AI-Augmented Founding Coach.</h1><p>This is the pre-workspace qualification route. The key signal is not whether you already use AI, but whether you are willing and able to learn through evidence with the Player and AI Coach.</p></div><span class="badge blue">MVP-2.1A</span></div>
   <div class="app-intro"><p class="eyebrow" style="color:#9facff">30-DAY PILOT</p><h2>Help invent and validate AI-augmented human coaching.</h2><p>Selected coaches work with about 3–5 players, use AI-assisted evidence, make explicit ACCEPT / MODIFY / REJECT decisions, and help us learn what creates better player development.</p></div>
   <div class="app-steps"><div class="app-step active">1 · Profile</div><div class="app-step">2 · Coaching</div><div class="app-step">3 · AI / Evidence / Triadic</div><div class="app-step">4 · Pilot Readiness</div><div class="app-step">5 · Review</div></div>
+  {% if saved %}<div class="save-status" role="status">{{ "Application submitted successfully." if saved == "submitted" else "Draft saved successfully." }} Your information is stored securely in the database.</div>{% endif %}
+  {% if not current_user %}<div class="save-status" style="background:#fff3dc;color:#805300;border-color:#efd49d">Please sign in before saving. <a href="/login" style="text-decoration:underline">Sign in</a> or <a href="/signup" style="text-decoration:underline">create a Coach account</a>.</div>{% endif %}
   <div class="grid">
     <div class="card s8">
-      <div class="formgrid">
-        <div class="field"><label>FULL NAME</label><input placeholder="Your full name"/></div>
-        <div class="field"><label>EMAIL</label><input type="email" placeholder="name@example.com"/></div>
-        <div class="field"><label>COUNTRY OF RESIDENCE</label><input placeholder="Country"/></div>
-        <div class="field"><label>HOME ADDRESS</label><input placeholder="City / region / full home address"/></div>
-        <div class="field"><label>NATIVE LANGUAGE</label><input placeholder="e.g., Spanish"/></div>
-        <div class="field"><label>OTHER COACHING LANGUAGES</label><input placeholder="e.g., English, Portuguese"/></div>
-        <div class="field"><label>COACHING LICENSE / QUALIFICATION</label><input placeholder="UEFA / CONMEBOL / AFC / federation / other"/></div>
-        <div class="field"><label>YEARS COACHING</label><input type="number" min="0" placeholder="0"/></div>
-        <div class="field full"><label>WHO DO YOU COACH?</label><input placeholder="Age groups, level, team/academy/private, current role"/></div>
-        <div class="field full"><label>PLAYER DEVELOPMENT EXAMPLE</label><textarea placeholder="Describe one player you helped improve. What changed, what did you do, and what evidence convinced you?"></textarea></div>
-        <div class="field full"><label>TRIADIC LEARNING MINDSET — 25% OF INITIAL QUALIFICATION</label><textarea placeholder="Imagine AI recommends an intervention for your player, but your judgment says it should be modified. How would you decide, explain your reasoning, observe the player's response, and use the outcome to improve both your coaching and the AI's future recommendations?"></textarea></div>
-        <div class="field full"><label>AI / EVIDENCE READINESS</label><div class="choicegrid" id="choices"><div class="choice" onclick="this.classList.toggle('on')">Willing to learn AI-assisted coaching</div><div class="choice" onclick="this.classList.toggle('on')">Comfortable reviewing video evidence</div><div class="choice" onclick="this.classList.toggle('on')">Willing to record ACCEPT / MODIFY / REJECT rationale</div><div class="choice" onclick="this.classList.toggle('on')">Can work with 3–5 players for 30 days</div><div class="choice" onclick="this.classList.toggle('on')">Can obtain required player / guardian consent</div><div class="choice" onclick="this.classList.toggle('on')">Can validate native-language localization</div></div></div>
-        <div class="field"><label>PILOT AVAILABILITY</label><select><option>Ready within 2 weeks</option><option>Ready within 30 days</option><option>Later / discuss</option></select></div>
-        <div class="field"><label>PRIMARY REGION</label><select><option>Africa</option><option>LATAM</option><option>Switzerland / Europe</option><option>North America</option><option>Asia</option></select></div>
-        <div class="field full"><label>LINKS / EVIDENCE</label><input placeholder="LinkedIn, coaching profile, website, video, academy page"/></div>
-        <div class="field full"><label>CREDENTIAL / LICENSE FILE</label><input id="credential360" type="file" accept=".pdf,.jpg,.jpeg,.png"/></div>
-        <div class="field full"><label>CONSENT READINESS ATTESTATION</label><div class="choicegrid"><div class="choice" id="consentReady360" onclick="this.classList.toggle('on')">I understand that minor-player evidence requires purpose-specific guardian consent before upload or analysis.</div></div></div>
-      </div>
-      <div style="margin-top:13px;display:flex;gap:8px;justify-content:flex-end"><button class="btn light" onclick="alert('Prototype: draft saved locally in production version.')">Save draft</button><button class="btn primary" onclick="submitApp()">Review application</button></div>
+      <form action="/coach-applications" method="post" enctype="multipart/form-data">
+       <input type="hidden" name="csrf" value="{{ csrf_token }}">
+       <div class="formgrid">
+        <div class="field"><label for="full_name">FULL NAME</label><input id="full_name" name="full_name" maxlength="120" value="{{ application.full_name if application else (current_user.name if current_user else '') }}" placeholder="Your full name" required/></div>
+        <div class="field"><label for="app_email">EMAIL</label><input id="app_email" name="email" type="email" maxlength="320" value="{{ application.email if application else (current_user.email if current_user else '') }}" placeholder="name@example.com" required/></div>
+        <div class="field"><label>COUNTRY OF RESIDENCE</label><input name="country" maxlength="120" value="{{ application.country if application else '' }}" placeholder="Country"/></div>
+        <div class="field"><label>HOME ADDRESS</label><input name="home_address" maxlength="500" value="{{ application.home_address if application else '' }}" placeholder="City / region / full home address"/></div>
+        <div class="field"><label>NATIVE LANGUAGE</label><input name="native_language" maxlength="120" value="{{ application.native_language if application else '' }}" placeholder="e.g., Spanish"/></div>
+        <div class="field"><label>OTHER COACHING LANGUAGES</label><input name="coaching_languages" maxlength="300" value="{{ application.coaching_languages if application else '' }}" placeholder="e.g., English, Portuguese"/></div>
+        <div class="field"><label>COACHING LICENSE / QUALIFICATION</label><input name="qualification" maxlength="300" value="{{ application.qualification if application else '' }}" placeholder="UEFA / CONMEBOL / AFC / federation / other"/></div>
+        <div class="field"><label>YEARS COACHING</label><input name="years_coaching" type="number" min="0" max="80" value="{{ application.years_coaching if application else 0 }}"/></div>
+        <div class="field full"><label>WHO DO YOU COACH?</label><input name="coaching_context" maxlength="5000" value="{{ application.coaching_context if application else '' }}" placeholder="Age groups, level, team/academy/private, current role"/></div>
+        <div class="field full"><label>PLAYER DEVELOPMENT EXAMPLE</label><textarea name="development_example" maxlength="10000" placeholder="Describe one player you helped improve. What changed, what did you do, and what evidence convinced you?">{{ application.development_example if application else '' }}</textarea></div>
+        <div class="field full"><label>TRIADIC LEARNING MINDSET — 25% OF INITIAL QUALIFICATION</label><textarea name="triadic_mindset" maxlength="10000" placeholder="How would you assess, explain, observe and improve an AI recommendation?">{{ application.triadic_mindset if application else '' }}</textarea></div>
+        <div class="field full"><label>AI / EVIDENCE READINESS</label><div class="choicegrid" id="choices">{% for item in ["Willing to learn AI-assisted coaching","Comfortable reviewing video evidence","Willing to record ACCEPT / MODIFY / REJECT rationale","Can work with 3–5 players for 30 days","Can obtain required player / guardian consent","Can validate native-language localization"] %}<label class="choice{% if application and item in application.readiness %} on{% endif %}"><input type="checkbox" name="readiness" value="{{ item }}"{% if application and item in application.readiness %} checked{% endif %}>{{ item }}</label>{% endfor %}</div></div>
+        <div class="field"><label>PILOT AVAILABILITY</label><select name="pilot_availability">{% for item in ["Ready within 2 weeks","Ready within 30 days","Later / discuss"] %}<option{% if application and application.pilot_availability == item %} selected{% endif %}>{{ item }}</option>{% endfor %}</select></div>
+        <div class="field"><label>PRIMARY REGION</label><select name="primary_region">{% for item in ["Africa","LATAM","Switzerland / Europe","North America","Asia"] %}<option{% if application and application.primary_region == item %} selected{% endif %}>{{ item }}</option>{% endfor %}</select></div>
+        <div class="field full"><label>LINKS / EVIDENCE</label><input name="evidence_links" maxlength="5000" value="{{ application.evidence_links if application else '' }}" placeholder="LinkedIn, coaching profile, website, video, academy page"/></div>
+        <div class="field full"><label>CREDENTIAL / LICENSE FILE</label><input id="credential360" name="credential" type="file" accept=".pdf,.jpg,.jpeg,.png"/><div class="credential-note">PDF, JPG or PNG · maximum 5 MB{% if application and application.credential_filename %} · Saved: {{ application.credential_filename }}{% endif %}</div></div>
+        <div class="field full"><label>CONSENT READINESS ATTESTATION</label><div class="choicegrid"><label class="choice{% if application and application.consent_ready %} on{% endif %}"><input type="checkbox" name="consent_ready" value="true"{% if application and application.consent_ready %} checked{% endif %}>I understand that minor-player evidence requires purpose-specific guardian consent before upload or analysis.</label></div></div>
+       </div>
+       <div style="margin-top:13px;display:flex;gap:8px;justify-content:flex-end"><button class="btn light" type="submit" name="action" value="draft"{% if not current_user %} disabled{% endif %}>Save draft</button><button class="btn primary" type="submit" name="action" value="submitted"{% if not current_user %} disabled{% endif %}>Submit application</button></div>
+      </form>
     </div>
     <div class="card s4">
       <p class="eyebrow">INITIAL QUALIFICATION FRAME</p>
@@ -162,17 +168,7 @@ function openView(id){
 }
 navButtons.forEach(b=>b.addEventListener('click',()=>openView(b.dataset.view)));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>openView(b.dataset.go)));
-function submitApp(){
-  const inputs=[...document.querySelectorAll('#view-application input:not([type="file"]),#view-application textarea,#view-application select')];
-  const data={};
-  inputs.forEach((el,i)=>{data[el.previousElementSibling?.textContent?.trim()||('field_'+i)]=el.value});
-  data.readiness=[...document.querySelectorAll('#view-application .choice.on')].map(x=>x.textContent.trim());
-  const rec=SSOT360.addApplication({kind:'founding_coach',payload:data});
-  const f=document.getElementById('credential360')?.files?.[0];
-  if(f) SSOT360.addFile(f,rec.id);
-  SSOT360.audit('APPLICATION_READY_FOR_REVIEW',{id:rec.id,credentialQueued:!!f});
-  alert('Application '+rec.id+' saved to the persistent v0.36 browser record store. In deployment, this same contract posts to the authenticated application API/database.');
-}
+document.querySelectorAll('#view-application .choice input').forEach(input=>input.addEventListener('change',()=>input.closest('.choice').classList.toggle('on',input.checked)));
 const initial=location.hash.replace('#',''); if(document.getElementById('view-'+initial))openView(initial);
 </script>
 
@@ -186,7 +182,6 @@ const initial=location.hash.replace('#',''); if(document.getElementById('view-'+
   function audit(action,detail){const s=load();s.audit.push({id:uid('AUD'),at:new Date().toISOString(),action,detail:detail||{}});save(s);refresh();}
   function analytics(event,props){const s=load();s.analytics.push({id:uid('EVT'),at:new Date().toISOString(),event,props:props||{}});save(s);refresh();}
   function demoSignIn(role){const s=load();s.session={userId:uid('USR'),role:role||'coach',signedIn:true,startedAt:new Date().toISOString()};save(s);audit('SESSION_STARTED',{role:s.session.role});analytics('sign_in',{role:s.session.role});}
-  function addApplication(data){const s=load();const rec=Object.assign({id:uid('APP'),status:'submitted',createdAt:new Date().toISOString()},data||{});s.applications.push(rec);save(s);audit('APPLICATION_SUBMITTED',{id:rec.id});analytics('application_submitted',{role:'coach'});return rec;}
   function addFile(file,ownerId){const s=load();const rec={id:uid('FIL'),ownerId:ownerId||null,name:file?.name||'credential.pdf',type:file?.type||'application/octet-stream',size:file?.size||0,status:'queued',createdAt:new Date().toISOString()};s.files.push(rec);save(s);audit('FILE_QUEUED',{id:rec.id,name:rec.name});return rec;}
   function addConsent(){const s=load();const rec={id:uid('CON'),subjectId:'demo-player',guardianId:'demo-guardian',purpose:'training-video-and-development-twin',status:'granted',createdAt:new Date().toISOString()};s.consents.push(rec);save(s);audit('CONSENT_GRANTED',{id:rec.id,purpose:rec.purpose});analytics('consent_granted',{});}
   function addVideoJob(){const s=load();const rec={id:uid('VID'),ownerId:s.session?.userId||'guest',cameraCount:1,status:'queued',createdAt:new Date().toISOString()};s.videos.push(rec);save(s);audit('VIDEO_INGEST_QUEUED',{id:rec.id,cameras:rec.cameraCount});analytics('video_ingest_queued',{cameras:1});}
@@ -204,7 +199,7 @@ const initial=location.hash.replace('#',''); if(document.getElementById('view-'+
     const log=document.getElementById('prod360-log');
     if(log) log.textContent=s.audit.length ? s.audit.slice(-12).reverse().map(x=>x.at+'  '+x.action+'  '+JSON.stringify(x.detail)).join('\n') : 'No audit events yet.';
   }
-  window.SSOT360={load,save,audit,analytics,demoSignIn,addApplication,addFile,addConsent,addVideoJob,addPayment,setLocale,refresh};
+  window.SSOT360={load,save,audit,analytics,demoSignIn,addFile,addConsent,addVideoJob,addPayment,setLocale,refresh};
   document.addEventListener('DOMContentLoaded',function(){refresh();analytics('page_view',{page:document.title});});
 })();
 </script>

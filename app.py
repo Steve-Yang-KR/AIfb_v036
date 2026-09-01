@@ -4,11 +4,11 @@ import uuid
 from datetime import datetime, timezone
 from typing import Generator
 
-from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pwdlib import PasswordHash
-from sqlalchemy import Boolean, DateTime, String, create_engine, select, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, LargeBinary, String, Text, create_engine, select, text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 from starlette.middleware.sessions import SessionMiddleware
@@ -38,6 +38,38 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class CoachApplication(Base):
+    __tablename__ = "coach_applications"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True)
+    full_name: Mapped[str] = mapped_column(String(120))
+    email: Mapped[str] = mapped_column(String(320))
+    country: Mapped[str] = mapped_column(String(120), default="")
+    home_address: Mapped[str] = mapped_column(String(500), default="")
+    native_language: Mapped[str] = mapped_column(String(120), default="")
+    coaching_languages: Mapped[str] = mapped_column(String(300), default="")
+    qualification: Mapped[str] = mapped_column(String(300), default="")
+    years_coaching: Mapped[int] = mapped_column(Integer, default=0)
+    coaching_context: Mapped[str] = mapped_column(Text, default="")
+    development_example: Mapped[str] = mapped_column(Text, default="")
+    triadic_mindset: Mapped[str] = mapped_column(Text, default="")
+    readiness: Mapped[str] = mapped_column(Text, default="")
+    pilot_availability: Mapped[str] = mapped_column(String(80), default="")
+    primary_region: Mapped[str] = mapped_column(String(80), default="")
+    evidence_links: Mapped[str] = mapped_column(Text, default="")
+    consent_ready: Mapped[bool] = mapped_column(Boolean, default=False)
+    credential_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    credential_content_type: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    credential_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    credential_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="draft", index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+    )
 
 
 DATABASE_URL = database_url()
@@ -123,7 +155,90 @@ def home(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
 
 @app.get("/coach-workspace", response_class=HTMLResponse)
 def coach_workspace(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
-    return templates.TemplateResponse(request, "coach_workspace.html", page_context(request, db))
+    user = current_user(request, db)
+    application = db.scalar(select(CoachApplication).where(CoachApplication.user_id == user.id)) if user else None
+    return templates.TemplateResponse(
+        request,
+        "coach_workspace.html",
+        page_context(request, db, application=application, saved=request.query_params.get("saved")),
+    )
+
+
+@app.post("/coach-applications")
+async def save_coach_application(
+    request: Request,
+    csrf: str = Form(...),
+    action: str = Form(...),
+    full_name: str = Form(...),
+    email: str = Form(...),
+    country: str = Form(""),
+    home_address: str = Form(""),
+    native_language: str = Form(""),
+    coaching_languages: str = Form(""),
+    qualification: str = Form(""),
+    years_coaching: int = Form(0),
+    coaching_context: str = Form(""),
+    development_example: str = Form(""),
+    triadic_mindset: str = Form(""),
+    readiness: list[str] = Form(default=[]),
+    pilot_availability: str = Form(""),
+    primary_region: str = Form(""),
+    evidence_links: str = Form(""),
+    consent_ready: bool = Form(False),
+    credential: UploadFile | None = File(None),
+    db: Session = Depends(get_db),
+) -> RedirectResponse:
+    validate_csrf(request, csrf)
+    user = current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/coach-workspace%23application", status_code=status.HTTP_303_SEE_OTHER)
+    if action not in {"draft", "submitted"}:
+        raise HTTPException(status_code=400, detail="Invalid application action")
+    full_name, email = full_name.strip(), normalize_email(email)
+    if len(full_name) < 2 or "@" not in email or not 0 <= years_coaching <= 80:
+        raise HTTPException(status_code=400, detail="Please check the required application fields")
+
+    application = db.scalar(select(CoachApplication).where(CoachApplication.user_id == user.id))
+    if not application:
+        application = CoachApplication(user_id=user.id, full_name=full_name, email=email)
+        db.add(application)
+
+    values = {
+        "full_name": full_name[:120], "email": email[:320], "country": country.strip()[:120],
+        "home_address": home_address.strip()[:500], "native_language": native_language.strip()[:120],
+        "coaching_languages": coaching_languages.strip()[:300], "qualification": qualification.strip()[:300],
+        "years_coaching": years_coaching, "coaching_context": coaching_context.strip()[:5000],
+        "development_example": development_example.strip()[:10000], "triadic_mindset": triadic_mindset.strip()[:10000],
+        "readiness": "\n".join(dict.fromkeys(item.strip()[:200] for item in readiness if item.strip())),
+        "pilot_availability": pilot_availability.strip()[:80], "primary_region": primary_region.strip()[:80],
+        "evidence_links": evidence_links.strip()[:5000], "consent_ready": consent_ready,
+        "status": action, "updated_at": datetime.now(timezone.utc),
+    }
+    for key, value in values.items():
+        setattr(application, key, value)
+
+    uploaded = credential if getattr(credential, "filename", "") else None
+    if uploaded:
+        content = await uploaded.read(5 * 1024 * 1024 + 1)
+        if len(content) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="Credential file must be 5 MB or smaller")
+        allowed = {"application/pdf", "image/jpeg", "image/png"}
+        if uploaded.content_type not in allowed:
+            raise HTTPException(status_code=415, detail="Credential must be a PDF, JPG or PNG file")
+        application.credential_filename = uploaded.filename[:255]
+        application.credential_content_type = uploaded.content_type[:120]
+        application.credential_size = len(content)
+        application.credential_data = content
+
+    try:
+        db.commit()
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise HTTPException(status_code=503, detail="Application could not be saved") from exc
+    return RedirectResponse(
+        f"/coach-workspace?saved={action}#application",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @app.get("/signup", response_class=HTMLResponse)
